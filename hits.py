@@ -42,6 +42,7 @@ def get_root_and_base(graph, adj, term):
     for i in range(len(graph.nodes)):
         if term in graph.nodes[i]['page_content'].lower():
             root_set.add(i)
+            base_set.add(i)
             base_set = base_set.union(set(np.where(adj[:, i] == 1)[0]))
             base_set = base_set.union(set(np.where(adj[i, :] == 1)[0]))
 
@@ -78,15 +79,17 @@ def main(args):
     term = args.query.lower()
 
     root_set, base_set = get_root_and_base(web_graph, adj, term)
-
+    print("Root set: " + str(root_set))
+    print("Base set: " + str(base_set))
     A = adj[list(base_set), :][:, list(base_set)]
     hubs = right_eig(np.matmul(A, A.T))
     auths = right_eig(np.matmul(A.T, A))
+    hind = np.argpartition(hubs, -3)[-3:][::-1]
+    aind = np.argpartition(auths, -3)[-3:][::-1]
     print("Hub scores: ")
     print(np.real(hubs))
     print("Authority scores: ")
     print(np.real(auths))
-
 if __name__ == "__main__":
     np.set_printoptions(precision=4)
     parser = argparse.ArgumentParser(description="HITS algorithm")
