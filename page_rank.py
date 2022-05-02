@@ -48,7 +48,7 @@ def left_eig(trans):
     ss = vl[:, 0] / np.sum(vl[:, 0])
     return ss
 
-def power_iter(transition_matrix, epsilon = 1e-15, max_iters = 100):
+def power_iter(transition_matrix, epsilon = 1e-10, max_iters = 1000):
     """A function to compute steady state probabilities by using power iteration method.
 
     Args
