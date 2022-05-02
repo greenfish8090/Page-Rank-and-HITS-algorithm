@@ -4,7 +4,20 @@ import argparse
 import pydot
 
 def compute_trans(mask, rtp = True, random_tp = 0.1):
-    
+    """A function to compute transition probability matrix.
+
+    Args
+    ----
+        mask    : adjacency matrix of the graph
+        rtp     : whether or not to perform random teleportation
+        random_tp: the random teleportation probability
+
+    Returns
+    -------
+        trans   : the transition probability matrix
+        
+    """
+
     #Calculating sum of each row and dividing from mask to get probabilities
     sums = np.sum(mask, axis=1, keepdims=True)
     trans = np.divide(mask, sums, out=np.zeros_like(mask), where=sums!=0)
@@ -18,11 +31,39 @@ def compute_trans(mask, rtp = True, random_tp = 0.1):
     
     return trans
 
-def compute_steady_state_by_calculating_left_eigen_vector_using_scipy_because_numpy_didnt_work_for_some_reason__we_also_ended_up_normalizing_the_eigen_vector_ourselves_why_does_scipy_not_do_it_even_though_it_says_it_does_in_the_docs_wtf(trans):
+def left_eig(trans):
+    """A function to compute left eigen vector.
+
+    Args
+    ----
+        trans   : transition probability matrix
+
+    Returns
+    -------
+        ss      : the staedy-state probability vector
+        
+    """
+
     _, vl = linalg.eig(trans, left=True, right=False)
-    return vl[:, 0] / np.sum(vl[:, 0])
+    ss = vl[:, 0] / np.sum(vl[:, 0])
+    return ss
 
 def power_iter(transition_matrix, epsilon = 1e-15, max_iters = 100):
+    """A function to compute steady state probabilities by using power iteration method.
+
+    Args
+    ----
+        trans           : transition probability matrix
+        epsilon         : when the difference between consecutive steady states is less than epsilon, we terminate power iteration
+        max_iters       : the maximum number of iterations
+
+    Returns
+    -------
+        steady_state    : the transition probability matrix
+        current_iter    : the last iteration conducted
+        
+    """
+
     current_iter = 0
     starting_page = np.random.choice(len(transition_matrix))
     steady_state = np.zeros((1, len(transition_matrix)))
@@ -37,6 +78,14 @@ def power_iter(transition_matrix, epsilon = 1e-15, max_iters = 100):
     return steady_state, current_iter
 
 def main(args):
+    """The main function.
+
+    Args
+    ----
+        args   : file, rtp
+    
+    """
+
     graph = pydot.Dot("Graph")
     with open(args.file, 'r') as f:
         lines = f.readlines()
@@ -51,7 +100,7 @@ def main(args):
             graph.add_edge(pydot.Edge(e.split(' ')[0], e.split(' ')[1]))
     
     trans = compute_trans(mask, args.rtp)
-    ss_1 = compute_steady_state_by_calculating_left_eigen_vector_using_scipy_because_numpy_didnt_work_for_some_reason__we_also_ended_up_normalizing_the_eigen_vector_ourselves_why_does_scipy_not_do_it_even_though_it_says_it_does_in_the_docs_wtf(trans)
+    ss_1 = left_eig(trans)
     print("Steady state calculated using left eigen decomposition:\n" + str(np.real(ss_1)))
 
     ss_2, ci = power_iter(trans)
@@ -63,8 +112,8 @@ def main(args):
 if __name__ == "__main__":
     np.set_printoptions(precision=4)
     parser = argparse.ArgumentParser(description="Page rank algorithm")
-    parser.add_argument('--file', type=str, required=True)
-    parser.add_argument('--rtp', type=bool, required=True)
+    parser.add_argument('--file', type=str, required=True, help='path to input file')
+    parser.add_argument('--rtp', type=bool, required=True, help='whether to perform random teleportation or not')
     args = parser.parse_args()
     main(args)
 
