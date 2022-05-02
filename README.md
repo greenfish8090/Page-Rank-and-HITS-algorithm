@@ -1,5 +1,5 @@
 # Page-Rank-and-HITS-algorithm
-An implementation of the page-rank and hits algorithms for the course Information Retrieval
+An implementation of the PageRank and HITS algorithms for the course Information Retrieval
 
 [GitHub link](https://github.com/greenfish8090/Page-Rank-and-HITS-algorithm/) <br>
 Group members: <br>
