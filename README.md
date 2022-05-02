@@ -17,7 +17,7 @@ conda env create -f environment.yml
 ```
 python page_rank.py --file <filepath> --rtp (true|false)
 ```
-### Run PageRank algorithm
+### Run HITS algorithm
 
 ```
 python hits.py --graph <filepath> --query <term>
